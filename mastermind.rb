@@ -1,24 +1,21 @@
 require 'pry'
+require_relative 'constants'
 
 module Mastermind
   class GameBoard
     attr_accessor :player1, :player2, :secret_code
     attr_writer :num_pegs, :num_turns
-    def initialize
-      @num_guesses = 0
-    end
+    def initialize; end
 
     def start
       puts "RUBY MASTERMIND\n"
+      @num_guesses = 0
       game_type
       add_players
       game_rules
       player_roles
       play_game
     end
-
-
-
     private
     def game_type
       puts "Would you like to play against the computer or a friend?\n"
@@ -40,7 +37,7 @@ module Mastermind
 
     def add_players
       if @game_type == 1
-        puts "What is your name?"
+        puts 'What is your name?'
         @player1 = Player.new(gets.chomp)
         puts "Hi #{player1.name}!"
         @player2 = ComputerPlayer.new("HAL-9000")
@@ -133,12 +130,12 @@ module Mastermind
         loop do
           case gets.chomp.to_i
           when 1
-            @code_maker = player1
-            @code_breaker = player2
+            @code_maker = @player1
+            @code_breaker = @player2
             break
           when 2
-            @code_maker = player2
-            @code_breaker = player1
+            @code_maker = @player2
+            @code_breaker = @player1
             break
           else
             puts 'Not quite. Try again.'
@@ -146,17 +143,17 @@ module Mastermind
         end
       else
         puts 'Who wants to be the code maker? The other person will try to break it. Obviously.'
-        puts "  (1) #{player1.name}"
-        puts "  (2) #{player2.name}"
+        puts "  (1) #{@player1.name}"
+        puts "  (2) #{@player2.name}"
         loop do
           case gets.chomp.to_i
           when 1
-            @code_maker = player1
-            @code_breaker = player2
+            @code_maker = @player1
+            @code_breaker = @player2
             break
           when 2
-            @code_maker = player2
-            @code_breaker = player1
+            @code_maker = @player2
+            @code_breaker = @player1
             break
           else
             puts 'Failure. You failed. Try again.'
@@ -165,22 +162,80 @@ module Mastermind
       end
     end
 
+    def play_game
+      if @game_type == 1
+        play_singleplayer
+      else
+        play_twoplayer
+      end
+    end
+
+    def play_singleplayer
+      @code_maker.create_code(@num_pegs)
+    end
+
+    def play_twoplayer
+      @code_maker.create_code(@num_pegs)
+    end
+
   end
 
   class Player
     attr_reader :name
-    def initialize (name)
+    def initialize(name)
       @name = name
     end
+
+    def create_code(num_pegs)
+      puts "Input your secret code as a sequence of #{num_pegs} colors. Each color is represented by its first letter in lowercase. You can use:"
+      puts 'red'.red + ' (written as ' + 'r'.red + ')'
+      puts 'green'.green + ' (written as ' + 'g'.green + ')'
+      puts 'blue'.blue + ' (written as ' + 'b'.blue + ')'
+      puts 'yellow'.yellow + ' (written as ' + 'y'.yellow + ')'
+      puts 'magenta'.magenta + ' (written as ' + 'm'.magenta + ')'
+      puts 'cyan'.cyan + ' (written as ' + 'c'.cyan + ')'
+
+      loop do
+        code = gets.chomp
+        code_split = code.chars
+        if code_split.length == num_pegs && code_split.all? { |char| COLORS_ABBR.include? char}
+          return Guess.new(code)
+        else
+          puts 'No. Unacceptable. Try again.'
+        end
+      end
+
+    end
+
+    private
+
   end
 
   class ComputerPlayer < Player
+    def initialize(name)
+      super
+    end
+
+    def create_code(num_pegs)
+
+    end
 
   end
 
   class Guess
-    def initialize (num_pegs)
-      @num_pegs = num_pegs
+    attr_reader :color_sequence
+    def initialize(color_sequence)
+      @color_sequence = color_sequence
+    end
+
+    def compare(other_guess)
+      if @color_sequence == other_guess.color_sequence
+
+      end
+    end
+
+    def random
+
     end
   end
 end
@@ -202,4 +257,14 @@ game.play
   return feedback on guess
   check win
   increment guess counter
+
+
+
+COLORS:
+  red
+  blue
+  green
+  yellow
+  magenta
+  cyan
 =end
