@@ -1,54 +1,34 @@
-require 'pry'
 require_relative 'constants'
+require_relative 'code'
+require_relative 'player'
+
 
 module Mastermind
-  class GameBoard
-    attr_accessor :player1, :player2, :secret_code
-    attr_writer :num_pegs, :num_turns
+  class Game
     def initialize; end
 
     def start
-      puts "RUBY MASTERMIND\n"
-      @num_guesses = 0
-      game_type
+      puts <<-HEREDOC
+                =======================
+                      MASTERMIND
+                =======================
+      HEREDOC
+      @board = GameBoard.new
+      @guesses_so_far = 0
+      @secret_code = nil
+      @code_cracked = false
       add_players
       game_rules
-      player_roles
+      player_role
       play_game
     end
-    private
-    def game_type
-      puts "Would you like to play against the computer or a friend?\n"
-      puts '  (1) Play vs Computer'
-      puts '  (2) Play vs Human'
-      loop do
-        case gets.chomp.to_i
-        when 1
-          @game_type = 1
-          break
-        when 2
-          @game_type = 2
-          break
-        else
-          puts "That didn't make sense, try again."
-        end
-      end
-    end
+
 
     def add_players
-      if @game_type == 1
-        puts 'What is your name?'
-        @player1 = Player.new(gets.chomp)
-        puts "Hi #{player1.name}!"
-        @player2 = ComputerPlayer.new("HAL-9000")
-      else
-        puts "What is player 1's name?"
-        @player1 = Player.new(gets.chomp)
-        puts "Hi #{player1.name}!"
-        puts "What is player 2's name?"
-        @player2 = Player.new(gets.chomp)
-        puts "Good luck #{player2.name}!"
-      end
+      puts 'What is your name?'
+      @player1 = Player.new(gets.chomp)
+      puts "Hi #{player1.name}!"
+      @computer_player = ComputerPlayer.new("HAL-9000")
     end
 
     def game_rules
@@ -74,7 +54,7 @@ module Mastermind
       customize_num_pegs
       customize_guesses
     end
-
+  
     def customize_num_pegs
       puts 'How many pegs are we dealing with?'
       puts '  (1) 3 pegs'
@@ -91,7 +71,7 @@ module Mastermind
         end
       end
     end
-
+  
     def customize_guesses
       puts 'How many guesses are allowed?'
       puts '  (1) 6 guesses'
@@ -122,124 +102,46 @@ module Mastermind
       end
     end
 
-    def player_roles
-      if @game_type == 1
-        puts 'Would you like to be the code breaker or the code maker?'
-        puts '  (1) Code maker'
-        puts '  (2) Code breaker'
-        loop do
-          case gets.chomp.to_i
-          when 1
-            @code_maker = @player1
-            @code_breaker = @player2
-            break
-          when 2
-            @code_maker = @player2
-            @code_breaker = @player1
-            break
-          else
-            puts 'Not quite. Try again.'
-          end
-        end
-      else
-        puts 'Who wants to be the code maker? The other person will try to break it. Obviously.'
-        puts "  (1) #{@player1.name}"
-        puts "  (2) #{@player2.name}"
-        loop do
-          case gets.chomp.to_i
-          when 1
-            @code_maker = @player1
-            @code_breaker = @player2
-            break
-          when 2
-            @code_maker = @player2
-            @code_breaker = @player1
-            break
-          else
-            puts 'Failure. You failed. Try again.'
-          end
+    def player_role
+      puts 'Would you like to be the code breaker or the code maker?'
+      puts '  (1) Code maker'
+      puts '  (2) Code breaker'
+      loop do
+        case gets.chomp.to_i
+        when 1
+          @code_maker = @player1
+          @code_breaker = @computer_player
+          break
+        when 2
+          @code_maker = @computer_player
+          @code_breaker = @player1
+          break
+        else
+          puts 'Not quite. Try again.'
         end
       end
     end
 
     def play_game
-      if @game_type == 1
-        play_singleplayer
-      else
-        play_twoplayer
+      @secret_code = @code_maker.create_code(@num_pegs)
+      until @guesses_so_far == @num_guesses || @code_cracked
+        player_guess = @code_breaker.get_guess
+        pretty_print(evaluate_guess(player_guess))
+        @guesses_so_far += 1
       end
     end
 
-    def play_singleplayer
-      @code_maker.create_code(@num_pegs)
-    end
-
-    def play_twoplayer
-      @code_maker.create_code(@num_pegs)
-    end
-
-  end
-
-  class Player
-    attr_reader :name
-    def initialize(name)
-      @name = name
-    end
-
-    def create_code(num_pegs)
-      puts "Input your secret code as a sequence of #{num_pegs} colors. Each color is represented by its first letter in lowercase. You can use:"
-      puts 'red'.red + ' (written as ' + 'r'.red + ')'
-      puts 'green'.green + ' (written as ' + 'g'.green + ')'
-      puts 'blue'.blue + ' (written as ' + 'b'.blue + ')'
-      puts 'yellow'.yellow + ' (written as ' + 'y'.yellow + ')'
-      puts 'magenta'.magenta + ' (written as ' + 'm'.magenta + ')'
-      puts 'cyan'.cyan + ' (written as ' + 'c'.cyan + ')'
-
-      loop do
-        code = gets.chomp
-        code_split = code.chars
-        if code_split.length == num_pegs && code_split.all? { |char| COLORS_ABBR.include? char}
-          return Guess.new(code)
-        else
-          puts 'No. Unacceptable. Try again.'
-        end
+    def evaluate_guess(guess)
+      if guess.color_sequence == @secret_code.color_sequence
+        @code_cracked = true
+        return []
       end
 
     end
+    
 
-    private
-
-  end
-
-  class ComputerPlayer < Player
-    def initialize(name)
-      super
-    end
-
-    def create_code(num_pegs)
-
-    end
-
-  end
-
-  class Guess
-    attr_reader :color_sequence
-    def initialize(color_sequence)
-      @color_sequence = color_sequence
-    end
-
-    def compare(other_guess)
-      if @color_sequence == other_guess.color_sequence
-
-      end
-    end
-
-    def random
-
-    end
   end
 end
-
 
 =begin
 game.new
