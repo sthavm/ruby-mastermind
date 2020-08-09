@@ -9,9 +9,9 @@ module Mastermind
 
     def start
       puts <<-HEREDOC
-                =======================
-                      MASTERMIND
-                =======================
+                          =======================
+                                MASTERMIND
+                          =======================
       HEREDOC
       @guesses_so_far = 0
       @secret_code = nil
@@ -22,13 +22,12 @@ module Mastermind
       play_game
     end
 
-
     def add_players
       puts "\n"
       puts 'What is your name?'
-      @player1 = Player.new(gets.chomp)
-      puts "Hi #{@player1.name}!"
-      @computer_player = ComputerPlayer.new("HAL-9000")
+      @player = Player.new(gets.chomp)
+      puts "Hi #{@player.name}!"
+      @computer_player = ComputerPlayer.new('HAL-9000')
     end
 
     def game_rules
@@ -55,7 +54,7 @@ module Mastermind
       customize_num_pegs
       customize_guesses
     end
-  
+
     def customize_num_pegs
       puts "\n"
       puts 'How many pegs are we dealing with?'
@@ -73,7 +72,7 @@ module Mastermind
         end
       end
     end
-  
+
     def customize_guesses
       puts "\n"
       puts 'How many guesses are allowed?'
@@ -113,12 +112,12 @@ module Mastermind
       loop do
         case gets.chomp.to_i
         when 1
-          @code_maker = @player1
+          @code_maker = @player
           @code_breaker = @computer_player
           break
         when 2
           @code_maker = @computer_player
-          @code_breaker = @player1
+          @code_breaker = @player
           break
         else
           puts 'Not quite. Try again.'
@@ -131,10 +130,13 @@ module Mastermind
       puts @secret_code.color_sequence
       @code_breaker.display_guessing_rules(@num_pegs)
       until @guesses_so_far == @num_guesses || @code_cracked
-        player_guess = @code_breaker.create_code(@num_pegs)
+        player_guess = @code_breaker.create_guess(@num_pegs)
         @code_breaker.receive_evaluation(evaluate_guess(player_guess), (@guesses_so_far + 1), @num_guesses)
         check_win(player_guess)
         @guesses_so_far += 1
+      end
+      unless @code_cracked
+        @code_breaker.display_loss_message(@secret_code.color_sequence)
       end
     end
 

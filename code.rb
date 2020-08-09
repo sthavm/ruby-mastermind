@@ -5,16 +5,6 @@ module Mastermind
     def initialize(color_sequence = nil)
       @color_sequence = color_sequence
     end
-
-    def compare(other_guess)
-      if @color_sequence == other_guess.color_sequence
-
-      end
-    end
-
-    def random
-
-    end
   end
 end
 

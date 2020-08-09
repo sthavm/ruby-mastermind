@@ -69,3 +69,12 @@ COLORED_CHARS = {
   'c' => 'c'.cyan,
   'm' => 'm'.magenta
 }
+
+CHAR_TO_BLOCK = {
+  'r' => RED_BLOCK,
+  'g' => GREEN_BLOCK,
+  'b' => BLUE_BLOCK,
+  'y' => YELLOW_BLOCK,
+  'c' => CYAN_BLOCK,
+  'm' => MAGENTA_BLOCK
+}

@@ -26,12 +26,21 @@ module Mastermind
       puts "The secret code was #{pretty_code(secret_code)}"
     end
 
-    def create_code(num_pegs)
+    def display_loss_message(secret_code)
+      puts "\n"
+      puts "You've run out of guesses :("
+      puts "The code was #{pretty_code(secret_code)}"
+      puts "Better luck next time #{@name}"
+    end
+
+    def create_guess(num_pegs)
       print 'Type your guess: '
       loop do
         sequence = gets.chomp
         sequence_split = sequence.chars
         if (sequence_split.length == num_pegs) && (sequence_split.all? { |char| COLORS_ABBR.include? char })
+          puts "\n"
+          puts blockify(sequence_split)
           return Code.new(sequence_split)
         else
           puts 'No. Unacceptable. Try again.'
@@ -39,8 +48,22 @@ module Mastermind
       end
     end
 
+    def create_code(num_pegs)
+      print 'Type your secret code: '
+      loop do
+        sequence = gets.chomp
+        sequence_split = sequence.chars
+        if (sequence_split.length == num_pegs) && (sequence_split.all? { |char| COLORS_ABBR.include? char })
+          return Code.new(sequence_split)
+        else
+          puts 'WRONG. Try again.'
+        end
+      end
+    end
+
     def receive_evaluation(feedback_array, guesses_so_far, num_guesses)
       pretty_feedback = make_pretty_feedback(feedback_array)
+      puts "\n"
       puts "Feedback: #{pretty_feedback.join(' ')}"
       puts "Tries: #{guesses_so_far}/#{num_guesses}"
       puts "\n"
@@ -66,6 +89,14 @@ module Mastermind
       pretty_array.join(' ')
     end
 
+    def blockify(color_array)
+      block_array = []
+      color_array.each do | char |
+        block_array.push(CHAR_TO_BLOCK[char])
+      end
+      block_array.join(' ')
+    end
+
   end
 
   class ComputerPlayer < Player
@@ -82,5 +113,10 @@ module Mastermind
     end
 
     def display_guessing_rules; end
+
+    def display_win_message(secret_code); end
+
+    def display_loss_message(secret_code); end
+
   end
 end
