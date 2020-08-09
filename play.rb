@@ -1,3 +1,4 @@
 require_relative 'mastermind'
 
-Mastermind::GameBoard.new.start
+game = Mastermind::Game.new
+game.start

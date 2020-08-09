@@ -58,8 +58,14 @@ YELLOW_BLOCK = '  '.bg_yellow
 CYAN_BLOCK = '  '.bg_cyan
 MAGENTA_BLOCK = '  '.bg_magenta
 
-RIGHT_PLACE_PEG = "\u23e3".green
-CONTAINS_PEG = "\u23e3"
+RIGHT_PLACE_PEG = "\u23e3".green.freeze
+CONTAINS_PEG = "\u23e3".freeze
 
-
-
+COLORED_CHARS = {
+  'r' => 'r'.red,
+  'g' => 'g'.green,
+  'b' => 'b'.blue,
+  'y' => 'y'.yellow,
+  'c' => 'c'.cyan,
+  'm' => 'm'.magenta
+}
