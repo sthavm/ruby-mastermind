@@ -28,6 +28,7 @@ module Mastermind
       @player = Player.new(gets.chomp)
       puts "Hi #{@player.name}!"
       @computer_player = ComputerPlayer.new('HAL-9000')
+      @computer_player.human = @player
     end
 
     def game_rules
@@ -127,7 +128,6 @@ module Mastermind
 
     def play_game
       @secret_code = @code_maker.create_code(@num_pegs)
-      puts @secret_code.color_sequence
       @code_breaker.display_guessing_rules(@num_pegs)
       until @guesses_so_far == @num_guesses || @code_cracked
         player_guess = @code_breaker.create_guess(@num_pegs)
@@ -141,23 +141,23 @@ module Mastermind
     end
 
     def evaluate_guess(guess)
-      feedback_array = []
+      feedback = {'r' => 0, 'c' => 0}
       guess_sequence = guess.color_sequence.clone
       secretcode_sequence = @secret_code.color_sequence.clone
       (guess.color_sequence.length - 1).downto(0) do | i |
         if guess.color_sequence[i] == @secret_code.color_sequence[i]
-          feedback_array.push('r')
+          feedback['r'] += 1
           guess_sequence.delete_at(i)
           secretcode_sequence.delete_at(i)
         end
       end
       guess_sequence.each do | char |
         if secretcode_sequence.include?(char)
-          feedback_array.push('c')
+          feedback['c'] += 1
           secretcode_sequence.delete_at(secretcode_sequence.find_index(char))
         end
       end
-      feedback_array
+      feedback
     end
 
     def check_win(guess)
@@ -168,33 +168,3 @@ module Mastermind
     end
   end
 end
-
-=begin
-game.new
-game.start
-  get number of pegs - 4/5/6
-  get number of turns
-  choose play vs computer / 2 player
-    choose codebreaker/ codemaker
-game.player1 = Player.new()
-game.player2 = Player.new()
-game.set_codebreaker = player
-game.set_codemaker = player
-game.play
-  make guess
-  return feedback on guess
-  check win
-  increment guess counter
-
-
-
-  [r,g,y,b]
-  [g,r,y,m]
-COLORS:
-  red
-  blue
-  green
-  yellow
-  magenta
-  cyan
-=end
