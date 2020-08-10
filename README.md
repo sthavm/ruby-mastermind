@@ -2,7 +2,7 @@
 
 [TOP](https://www.theodinproject.com/courses/ruby-programming/lessons/oop?ref=lnav#project-2-mastermind) curriculum project.
 
-[![Run on Repl.it](https://repl.it/badge/github/sthavm/ruby-mastermind)](https://repl.it/github/sthavm/ruby-mastermind)
+[![Run on Repl.it](https://repl.it/badge/github/sthavm/ruby-mastermind)](https://ruby-mastermind.sthavm.repl.run)
 
 The Mastermind board game played in the terminal.
 
